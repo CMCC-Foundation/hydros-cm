@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl" href="definitions_variables.xsl" ?>
+
+<entry_id version="3.0">
+
+  <!-- modifier_mode allowed values are
+       '*' 0 or more modifiers (default)
+       '1' exactly 1 modifier
+       '?' 0 or 1 modifiers
+       '+' 1 or more modifiers
+       This file may have lnd desc entries.
+  -->
+
+  <description modifier_mode="*">
+    <desc rof="HYDROS[%FLOOD]">HYDROS: HYdro Dynamic ROuting Scheme</desc>
+    <desc option="FLOOD">HYDROS model with flood:</desc>
+  </description>
+
+  <entry id="COMP_ROF"> 
+     <type>char</type>
+     <valid_values>hydros</valid_values>
+     <default_value>hydros</default_value>
+     <group>case_comp</group>
+     <file>env_case.xml</file>
+     <desc>Name of river component</desc>
+  </entry>
+
+  <entry id="HYDROS_MODE">
+    <type>char</type>
+    <valid_values>ACTIVE,NULL</valid_values>
+    <default_value>ACTIVE</default_value>
+    <values>
+      <value grid="r%null">NULL</value>
+    </values>
+    <group>build_component_hydros</group>
+    <file>env_build.xml</file>
+    <desc>mode for hydros model, NULL means hydros is turned off</desc>
+  </entry>
+
+  <entry id="HYDROS_FLOOD_MODE">
+    <type>char</type>
+    <valid_values>ACTIVE,NULL</valid_values>
+    <default_value>NULL</default_value>
+    <values>
+      <value compset="_HYDROS%FLOOD">ACTIVE</value>
+    </values>
+    <group>build_component_hydros</group>
+    <file>env_build.xml</file>
+    <desc>mode for hydros flood feature, NULL means hydros flood is turned off</desc>
+  </entry>
+
+  <entry id="HYDROS_SIM_YEAR">
+    <type>char</type>
+    <valid_values></valid_values>
+    <default_value>2000</default_value>
+    <values>
+      <value compset="1850.*_HYDROS">1850</value>
+      <value compset="HIST.*_HYDROS">1850</value>
+      <value compset="PIPD.*_HYDROS">1850</value>
+      <value compset="2000.*_HYDROS">2000</value>
+    </values>
+    <group>run_component_hydros</group>
+    <file>env_run.xml</file>
+    <desc>HYDROS build-namelist options</desc>
+  </entry>
+
+  <help>
+    =========================================
+    HYDROS naming conventions
+    =========================================
+  </help>
+
+</entry_id>

@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl" href="namelist_definition.xsl"?>
+
+<entry_id version="2.0">
+
+  <!-- ========================================================================================  -->
+  <!-- HYDROS Namelist -->
+  <!-- ========================================================================================  -->
+
+  <entry id="hydros_mode">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <valid_values>ACTIVE,NULL</valid_values>
+    <desc>
+      If ACTIVE, turn on hydros river routing. If the value hydros_mode is
+      NULL, then rof_present will be set to false at runtime.
+    </desc>
+    <values>
+      <value>ACTIVE</value>
+      <value hydros_mode="ACTIVE" clm_accelerated_spinup="off">ACTIVE</value>
+      <value clm_accelerated_spinup="on">NULL</value>
+      <value hydros_mode="NULL">NULL</value>
+      <value rof_grid="null">NULL</value>
+    </values>
+  </entry>
+
+  <entry id="flood_mode" modify_via_xml="HYDROS_FLOOD_MODE">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <valid_values>ACTIVE,NULL</valid_values>
+    <desc>
+      If ACTIVE, turn on hydros flooding back to clm. Note that hydros flood
+      is not supported in CESM1.1
+    </desc>
+    <values>
+      <value>$HYDROS_FLOOD_MODE</value>
+    </values>
+  </entry>
+
+  <entry id="ice_runoff">
+    <type>logical</type>
+    <category>hydros</category>
+    <group>hydros_inparm</group>
+    <desc>
+      If .true., river runoff will be split up into liquid and ice streams,
+      otherwise ice runoff will be zero and all runoff directed to liquid stream.
+    </desc>
+    <values>
+      <value>.true.</value>
+      <value lnd_grid="48x96">.false.</value>
+      <value lnd_grid="T31">.false.</value>
+    </values>
+  </entry>
+
+  <entry id="hydros_tstep" modify_via_xml="ROF_NCPL">
+    <type>integer</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <desc>HYDROS time step (sec). - set automatically via the value of ROF_NCPL</desc>
+    <values>
+      <value>-999</value>
+    </values>
+  </entry>
+
+  <entry id="hydros_effvel">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <valid_values>ACTIVE,NULL</valid_values>
+    <desc>
+      If ACTIVE, calculate the effective velocity using slope. 
+    </desc>
+    <values>
+      <value>ACTIVE</value>
+      <value compset="CLM40">NULL</value>
+    </values>
+  </entry>
+
+  <entry id="finidat_hydros" skip_default_entry="true">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <input_pathname>abs</input_pathname>
+    <desc>
+      Full pathname of initial hydros file 
+    </desc>
+    <values>
+      <value>UNSET</value> 
+      <value simyr="1850" rof_grid="r05">$DIN_LOC_ROOT/rof/rtm/initdata/rtmi.I1850CRUCLM45BGC.0241-01-01.R05_simyr1850_c130515.nc</value>
+      <value simyr="2000" rof_grid="r05">$DIN_LOC_ROOT/rof/rtm/initdata/rtmi.ICRUCLM45BGC.2000-01-01.R05_simyr2000_c130518.nc</value>
+    </values>
+  </entry>
+
+  <entry id="nrevsn_hydros" skip_default_entry="true">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <desc>
+      Full pathname of master restart file for a branch run. (only used if RUN_TYPE is branch)
+    </desc>
+  </entry>
+
+  <entry id="frivinp_hydros">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <input_pathname>abs</input_pathname>
+    <desc>
+      Full pathname of input datafile for HYDROS.
+    </desc>
+    <values>
+      <value               >UNSET</value>
+      <value rof_grid="r05">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_0.5x0.5_simyr2000_slpmxvl_c120717.nc</value>
+      <value rof_grid="r01">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_0.1x0.1_qian_c130115.nc</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_fexcl1">
+    <type>char(1000)</type> 
+    <category>history</category>
+    <group>hydros_inparm</group> 
+    <desc>
+      Fields to exclude from history tape series 1.
+    </desc>
+    <values>
+      <value>''</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_fexcl2">
+    <type>char(1000)</type> 
+    <category>history</category>
+    <group>hydros_inparm</group> 
+    <desc>
+      Fields to exclude from history tape series  2.
+    </desc>
+    <values>
+      <value>''</value>
+    </values>
+  </entry>
+  
+  <entry id="hydroshist_fexcl3">
+    <type>char(1000)</type> 
+    <category>history</category>
+    <group>hydros_inparm</group> 
+    <desc>
+      Fields to exclude from history tape series  3.
+    </desc>
+    <values>
+      <value>''</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_fincl1">
+    <type>char(1000)</type>
+    <category>history</category>
+    <group>hydros_inparm</group> 
+    <desc>
+      Fields to add to history tape series  1.
+    </desc>
+    <values>
+      <value>''</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_fincl2">
+    <type>char(1000)</type>
+    <category>history</category>
+    <group>hydros_inparm</group>
+    <desc>
+      Fields to add to history tape series  2.
+    </desc>
+    <values>
+      <value>''</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_fincl3">
+    <type>char(1000)</type>
+    <category>history</category>
+    <group>hydros_inparm</group>
+    <desc>
+      Fields to add to history tape series  3.
+    </desc>
+    <values>
+      <value>''</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_mfilt">
+    <type>integer(6)</type>
+    <category>history</category>
+    <group>hydros_inparm</group>
+    <desc>
+      Per tape series  maximum number of time samples.
+    </desc>
+    <values>
+      <value>1</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_ndens">
+    <type>integer(6)</type>
+    <category>history</category>
+    <group>hydros_inparm</group>
+    <valid_values>1</valid_values>
+    <desc>
+      Per tape series  history file density (i.e. output precision) 
+      1=double precision, 2=single precision (NOT functional)
+    </desc>
+    <values>
+      <value>1</value>
+    </values>
+  </entry>
+
+  <entry id="hydroshist_nhtfrq">
+    <type>integer(6)</type>
+    <category>history</category>
+    <group>hydros_inparm</group>
+    <desc>
+      Per tape series history write frequency. 
+      positive means in time steps,  0=monthly, negative means hours
+      (i.e. 24 means every 24 time-steps and -24 means every day
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+</entry_id>
