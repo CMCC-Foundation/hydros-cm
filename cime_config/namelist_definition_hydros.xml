@@ -113,8 +113,21 @@
     </desc>
     <values>
       <value               >UNSET</value>
-      <value rof_grid="r05">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_0.5x0.5_simyr2000_slpmxvl_c120717.nc</value>
-      <value rof_grid="r01">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_0.1x0.1_qian_c130115.nc</value>
+      <value rof_grid="r05">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_hydrosParam_0.5x0.5_c220204.nc</value>
+    </values>
+  </entry>
+
+  <entry id="flakinp_hydros">
+    <type>char</type> 
+    <category>hydros</category>
+    <group>hydros_inparm</group> 
+    <input_pathname>abs</input_pathname>
+    <desc>
+      Full pathname of input datafile for HYDROS.
+    </desc>
+    <values>
+      <value               >UNSET</value>
+      <value rof_grid="r05">$DIN_LOC_ROOT/lnd/clm2/rtmdata/LakMap_hydrosParam_0.5x0.5_c220204.nc</value>
     </values>
   </entry>
 

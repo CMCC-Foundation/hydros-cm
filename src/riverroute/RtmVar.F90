@@ -50,6 +50,7 @@ module RtmVar
   character(len=CL), public :: nrevsn_hydros   = ' '       ! restart data file name for branch run
   character(len=CL), public :: finidat_hydros  = ' '       ! initial conditions file name
   character(len=CL), public :: frivinp_hydros  = ' '       ! RTM input data file name
+  character(len=CL), public :: flakinp_hydros  = ' '       ! RTM input data file name
   logical,           public :: ice_runoff = .true.      ! true => runoff is split into liquid and ice, 
                                                         ! otherwise just liquid
   logical,           public :: hydros_active    = .true.   ! true => hydros on

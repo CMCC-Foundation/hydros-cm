@@ -10,7 +10,7 @@ module RtmHistFile
   use shr_sys_mod   , only : shr_sys_flush, shr_sys_abort
   use shr_log_mod   , only : errMsg => shr_log_errMsg
   use RunoffMod     , only : runoff
-  use RtmVar        , only : rtmlon, rtmlat, spval, ispval, secspday, frivinp_hydros, &   
+  use RtmVar        , only : rtmlon, rtmlat, spval, ispval, secspday, frivinp_hydros, flakinp_hydros,  &   
                              iulog, nsrest, caseid, inst_suffix, nsrStartup, nsrBranch, & 
                              ctitle, version, hostname, username, conventions, source, &
                              model_doi_url
@@ -738,6 +738,9 @@ contains
     call ncd_putatt(lnfid, ncd_global, 'case_id', trim(caseid))
 
     str = get_filename(frivinp_hydros)
+    call ncd_putatt(lnfid, ncd_global, 'RTM_input_dataset', trim(str))
+
+    str = get_filename(flakinp_hydros)
     call ncd_putatt(lnfid, ncd_global, 'RTM_input_dataset', trim(str))
 
     !

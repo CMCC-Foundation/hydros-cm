@@ -19,7 +19,7 @@ module RtmMod
   use RtmSpmd         , only : masterproc, npes, iam, mpicom_rof, &
                                MPI_REAL8,MPI_INTEGER,MPI_CHARACTER,MPI_LOGICAL,MPI_MAX
   use RtmVar          , only : re, spval, rtmlon, rtmlat, iulog, ice_runoff, &
-                               frivinp_hydros, finidat_hydros, nrevsn_hydros, &
+                               frivinp_hydros, flakinp_hydros, finidat_hydros, nrevsn_hydros, &
                                nsrContinue, nsrBranch, nsrStartup, nsrest, &
                                inst_index, inst_suffix, inst_name, &
                                hydros_active, flood_active, effvel_active, &
@@ -35,6 +35,7 @@ module RtmMod
                                max_tapes, max_namlen
   use RtmRestFile     , only : RtmRestTimeManager, RtmRestGetFile, RtmRestFileRead, &
                                RtmRestFileWrite, RtmRestFileName
+  use RunoffMod       , only : RunoffInit, runoff
   use RtmIO
   use perf_mod
 !
@@ -188,7 +189,7 @@ contains
 
     namelist /hydros_inparm / &
          ice_runoff, hydros_mode, flood_mode, hydros_effvel, &
-         frivinp_hydros, finidat_hydros, nrevsn_hydros, hydros_tstep, &
+         frivinp_hydros, flakinp_hydros, finidat_hydros, nrevsn_hydros, hydros_tstep, &
          hydroshist_ndens, hydroshist_mfilt, hydroshist_nhtfrq, &
          hydroshist_fincl1,  hydroshist_fincl2, hydroshist_fincl3, &
          hydroshist_fexcl1,  hydroshist_fexcl2, hydroshist_fexcl3, &
@@ -228,6 +229,7 @@ contains
 
     call mpi_bcast (finidat_hydros,  len(finidat_hydros), MPI_CHARACTER, 0, mpicom_rof, ier)
     call mpi_bcast (frivinp_hydros,  len(frivinp_hydros), MPI_CHARACTER, 0, mpicom_rof, ier)
+    call mpi_bcast (flakinp_hydros,  len(flakinp_hydros), MPI_CHARACTER, 0, mpicom_rof, ier)
     call mpi_bcast (nrevsn_hydros ,  len(nrevsn_hydros) , MPI_CHARACTER, 0, mpicom_rof, ier)
     call mpi_bcast (hydros_mode,     len(hydros_mode)   , MPI_CHARACTER, 0, mpicom_rof, ier)
     call mpi_bcast (flood_mode,   len(flood_mode) , MPI_CHARACTER, 0, mpicom_rof, ier)
@@ -298,6 +300,13 @@ contains
        else
           if (masterproc) then
              write(iulog,*) '   RTM river data       = ',trim(frivinp_hydros)
+          endif
+       end if
+       if (flakinp_hydros == ' ') then
+          call shr_sys_abort( subname//' ERROR: hydros_mode ACTIVE, but flakinp_hydros NOT set' )
+       else
+          if (masterproc) then
+             write(iulog,*) '   RTM river data       = ',trim(flakinp_hydros)
           endif
        end if
     else
@@ -944,7 +953,7 @@ contains
     !   this will place the fthresh and evel initialization in
     !   a consistent location for extensibility.
     !-------------------------------------------------------
-    call RtmFloodInit (frivinp_hydros, begr, endr, nt_hydros, &
+    call RtmFloodInit (frivinp_hydros, flakinp_hydros, begr, endr, nt_hydros, &
          runoff%fthresh(begr:endr),                     &
          evel(begr:endr, :),                            &
          runoff%gindex(begr:endr),                      &
@@ -1339,7 +1348,7 @@ contains
   !=======================================================================
   !
   !=======================================================================
-  subroutine RtmFloodInit(frivinp, begr, endr, nt_hydros, fthresh, evel, &
+  subroutine RtmFloodInit(frivinp, flakinp, begr, endr, nt_hydros, fthresh, evel, &
                           gindex , &
                           lnumr , &
                           is_hydrosflood_on, &
@@ -1355,6 +1364,7 @@ contains
     ! Subroutine arguments 
     ! in mode arguments
     character(len=*), intent(in) :: frivinp
+    character(len=*), intent(in) :: flakinp
     integer ,         intent(in) :: begr, endr, nt_hydros
     logical ,         intent(in) :: is_hydrosflood_on  !control flooding
     logical ,         intent(in) :: is_effvel_on    !control eff. velocity 
@@ -1369,6 +1379,7 @@ contains
     ! Local dynamically alloc'd variables
     real(r8) , allocatable :: rslope(:)   
     real(r8) , allocatable :: max_volr(:)
+    real(r8) , allocatable :: lkpctt(:)
     real(r8) , allocatable :: tempr1(:,:),tempr2(:,:) ! temporary buffer for netcdf read
 
     integer(kind=pio_offset_kind), pointer   :: compdof(:) ! computational degrees of freedom for pio 
@@ -1380,6 +1391,7 @@ contains
     type(file_desc_t)  :: ncid       ! pio file desc
     type(var_desc_t)   :: vardesc1   ! pio variable desc 
     type(var_desc_t)   :: vardesc2   ! pio variable desc 
+    type(var_desc_t)   :: vardesc6   ! pio variable desc
     type(io_desc_t)    :: iodesc     ! pio io desc
     character(len=256) :: locfn      ! local file name
 
@@ -1457,6 +1469,48 @@ contains
        call pio_closefile(ncid)
 
     endif
+
+    allocate(lkpctt(begr:endr), stat=ier)
+    if (ier /= 0) call shr_sys_abort(subname // ':: allocation ERROR')
+
+    ! Get file
+    call getfil(flakinp, locfn, 0 )
+    if (masterproc) then
+      write(iulog,*) subname//':: reading RTM file name for LAKE: ',&
+          trim(flakinp_hydros)
+      call shr_sys_flush(iulog)
+    endif
+
+    ! Open file and make sure reuqired variables are in file
+    call ncd_pio_openfile (ncid, trim(locfn), 0)
+    call pio_seterrorhandling(ncid, PIO_BCAST_ERROR)
+    ier = pio_inq_varid(ncid, name='PCT_LAKE', vardesc=vardesc6)
+    if (ier /= PIO_noerr) then
+       call shr_sys_abort( trim(subname)//':: ERROR PCT_LAKE not on rdirc file')
+    end if
+
+    call pio_seterrorhandling(ncid, PIO_INTERNAL_ERROR)
+
+    ! Set iodesc
+    ier = pio_inq_vardimid(ncid, vardesc6, dids)
+    ier = pio_inq_dimlen(ncid, dids(1),dsizes(1))
+    ier = pio_inq_dimlen(ncid, dids(2),dsizes(2))
+    allocate(compdof(runoff%lnumr))
+    cnt = 0
+    do n = runoff%begr,runoff%endr
+       cnt = cnt + 1
+       compdof(cnt) = runoff%gindex(n)
+    enddo
+    call pio_initdecomp(pio_subsystem, pio_double, dsizes, compdof, iodesc)
+    deallocate(compdof)
+   
+    ! Read data
+    call pio_read_darray(ncid, vardesc6, iodesc, lkpctt, ier)
+   
+    ! Cleanup and close file
+    call pio_freedecomp(ncid, iodesc)
+    call pio_closefile(ncid)
+   
    
     ! done reading rdirc file, now set fthresh and effvel
     if (is_hydrosflood_on) then
@@ -1488,6 +1542,7 @@ contains
     if (is_hydrosflood_on .or. is_effvel_on) then
        deallocate(rslope, max_volr)
     endif
+    deallocate(lkpctt)
 
     if (masterproc) write(iulog,*) subname //':: Success '
 

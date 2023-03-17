@@ -122,6 +122,9 @@ def _create_namelists(case, confdir, inst_string, infile, nmlgen, data_list_path
     if ( nmlgen.get_value( "frivinp_hydros" ) == "UNSET" and config["hydros_mode"] != "NULL" ):
        raise SystemExit("ERROR: Direction file is NOT set and is required when HYDROS is active: frivinp_hydros")
 
+    if ( nmlgen.get_value( "flakinp_hydros" ) == "UNSET" and config["hydros_mode"] != "NULL" ):
+       raise SystemExit("ERROR: Direction file is NOT set and is required when HYDROS is active: flakinp_hydros")
+
     #----------------------------------------------------
     # Write output namelist
     #----------------------------------------------------
