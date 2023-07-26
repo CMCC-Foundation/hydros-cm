@@ -197,7 +197,7 @@ contains
        n = n + 1
        model_areas(n) = runoff%area(g)*1.0e-6_r8/(re*re)
        mod2med_areacor(n) = model_areas(n) / mesh_areas(n)
-       med2mod_areacor(n) = mesh_areas(n) / mod2med_areacor(n)
+       med2mod_areacor(n) = mesh_areas(n) / model_areas(n)
     end do
     deallocate(model_areas)
     deallocate(mesh_areas)
