@@ -113,7 +113,7 @@
     </desc>
     <values>
       <value               >UNSET</value>
-      <value rof_grid="r05">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_hydrosParam_0.5x0.5_c220204.nc</value>
+      <value rof_grid="r05">$DIN_LOC_ROOT/lnd/clm2/rtmdata/rdirc_hydrosParam_0.5x0.5_c230927.nc</value>
     </values>
   </entry>
 
